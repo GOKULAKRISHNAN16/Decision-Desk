@@ -650,12 +650,14 @@ After finishing all research, respond with ONLY a single JSON object, no markdow
     const userPrompt = `Decision: ${query}${constraints.length ? '\n' + constraints.join('\n') : ''}`;
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      // Calls your Cloudflare Worker proxy, NOT Anthropic directly.
+      // Replace this URL with your deployed worker's URL.
+      const WORKER_URL = 'https://decision-desk.YOUR-SUBDOMAIN.workers.dev';
+
+      const response = await fetch(WORKER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 8000,
           system: systemPrompt,
           messages: [{ role: 'user', content: userPrompt }],
           tools: [{ type: 'web_search_20250305', name: 'web_search' }]
