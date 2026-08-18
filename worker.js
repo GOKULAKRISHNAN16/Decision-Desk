@@ -17,7 +17,7 @@
 
 // Only allow requests from your own site. Update this to match your
 // GitHub Pages URL exactly, e.g. "https://yourusername.github.io"
-const ALLOWED_ORIGIN = "https://yourusername.github.io";
+const ALLOWED_ORIGIN = "https://gokulakrishnan16.github.io";
 
 export default {
   async fetch(request, env) {
