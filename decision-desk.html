@@ -1,0 +1,711 @@
+<style>
+  :root{
+    --bg: #14181D;
+    --panel: #1C222A;
+    --panel-2: #232A33;
+    --line: #313A44;
+    --ink: #EAE7E0;
+    --ink-dim: #9AA3AC;
+    --paper: #F5F2EA;
+    --paper-ink: #1B1F23;
+    --paper-dim: #6B655A;
+    --signal: #3FD68C;
+    --signal-dim: #1F5C41;
+    --noise: #E8A23D;
+    --noise-dim: #5C4420;
+    --ruled: #6E7680;
+    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --display: 'Space Grotesk', system-ui, sans-serif;
+    --body: 'Inter', system-ui, sans-serif;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; }
+  #dd-root{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    padding: 28px 20px 40px;
+    min-height: 100%;
+    line-height: 1.5;
+  }
+  .dd-wrap{ max-width: 780px; margin: 0 auto; }
+
+  .dd-eyebrow{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .dd-eyebrow::before{
+    content: '';
+    width: 7px; height: 7px;
+    background: var(--signal);
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px var(--signal);
+  }
+  h1{
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(24px, 4vw, 32px);
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .dd-sub{
+    color: var(--ink-dim);
+    font-size: 14.5px;
+    margin: 0 0 24px;
+    max-width: 52ch;
+  }
+
+  .dd-intake{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 18px;
+    margin-bottom: 22px;
+  }
+  .dd-label{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-bottom: 8px;
+    display: block;
+  }
+  textarea, input[type=text]{
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 14.5px;
+    padding: 11px 12px;
+    border-radius: 3px;
+    resize: vertical;
+    outline: none;
+  }
+  textarea:focus, input[type=text]:focus{ border-color: var(--signal); }
+  textarea{ min-height: 64px; margin-bottom: 12px; }
+  .dd-row{ display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .dd-row > div{ flex: 1; min-width: 180px; }
+
+  .dd-btn{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--signal);
+    color: #08150E;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: filter 0.15s ease;
+  }
+  .dd-btn:hover{ filter: brightness(1.08); }
+  .dd-btn:disabled{ background: var(--line); color: var(--ink-dim); cursor: not-allowed; }
+
+  .dd-status{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    margin-top: 10px;
+    min-height: 16px;
+  }
+  .dd-status.active::before{
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--signal);
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: dd-pulse 1s infinite ease-in-out;
+  }
+  @keyframes dd-pulse{ 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+
+  .dd-error{
+    background: var(--noise-dim);
+    border: 1px solid var(--noise);
+    color: #FCE4C0;
+    padding: 12px 14px;
+    border-radius: 3px;
+    font-size: 13.5px;
+    margin-bottom: 18px;
+  }
+
+  #dd-results{ display: none; }
+  #dd-results.show{ display: block; }
+
+  /* THE PICK — signature card */
+  .dd-pick{
+    background: var(--paper);
+    color: var(--paper-ink);
+    border-radius: 4px;
+    padding: 26px 24px 22px;
+    margin-bottom: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dd-pick-eyebrow{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    margin-bottom: 8px;
+  }
+  .dd-pick-name{
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(22px, 4vw, 30px);
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+  .dd-pick-why{
+    font-size: 15px;
+    color: #3A362E;
+    max-width: 60ch;
+    margin: 0 0 20px;
+  }
+
+  .dd-gauge-row{
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .dd-gauge{ flex-shrink: 0; }
+  .dd-gauge-caption{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--paper-dim);
+    letter-spacing: 0.04em;
+    flex: 1;
+    min-width: 160px;
+  }
+  .dd-gauge-caption b{ color: var(--paper-ink); font-size: 12.5px; }
+
+  section.dd-block{ margin-bottom: 24px; }
+  .dd-block-head{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .dd-block-title{
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 16.5px;
+  }
+  .dd-block-note{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-dim);
+  }
+
+  /* comparison table */
+  .dd-table-wrap{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+  table.dd-compare{
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13.5px;
+    min-width: 460px;
+  }
+  table.dd-compare th, table.dd-compare td{
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    white-space: normal;
+  }
+  table.dd-compare th{
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    font-weight: 500;
+    border-bottom: 1px solid var(--ruled);
+  }
+  table.dd-compare th:first-child, table.dd-compare td:first-child{
+    color: var(--ink);
+    font-weight: 600;
+    position: sticky; left: 0;
+    background: var(--panel);
+  }
+  table.dd-compare tr:last-child td{ border-bottom: none; }
+  table.dd-compare tr.dd-pick-row td:first-child{ color: var(--signal); }
+  table.dd-compare tr.dd-pick-row td:first-child::after{
+    content: ' ●';
+    color: var(--signal);
+    font-size: 9px;
+    vertical-align: super;
+  }
+
+  /* ruled out */
+  .dd-ruled-list{ display: flex; flex-direction: column; gap: 8px; }
+  .dd-ruled-item{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--ruled);
+    border-radius: 3px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    display: flex;
+    gap: 10px;
+  }
+  .dd-ruled-name{ font-weight: 600; flex-shrink: 0; color: var(--ink-dim); text-decoration: line-through; text-decoration-color: var(--ruled); }
+  .dd-ruled-reason{ color: var(--ink-dim); }
+
+  /* uncertain */
+  .dd-uncertain{
+    background: var(--noise-dim);
+    border: 1px solid var(--noise);
+    border-radius: 4px;
+    padding: 16px 18px;
+  }
+  .dd-uncertain .dd-block-title{ color: #FCE4C0; }
+  .dd-uncertain-list{ margin: 0; padding-left: 18px; color: #F2D9AE; font-size: 13.5px; }
+  .dd-uncertain-list li{ margin-bottom: 6px; }
+  .dd-uncertain-list li:last-child{ margin-bottom: 0; }
+
+  /* sources */
+  .dd-sources{ display: flex; flex-wrap: wrap; gap: 8px; }
+  .dd-source-chip{
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-dim);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 5px 12px;
+    text-decoration: none;
+  }
+  .dd-source-chip:hover{ border-color: var(--ruled); color: var(--ink); }
+
+  .dd-reset{
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 8px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  .dd-reset:hover{ color: var(--ink); border-color: var(--ruled); }
+
+  @media (max-width: 480px){
+    .dd-gauge-row{ flex-direction: column; align-items: flex-start; }
+  }
+</style>
+
+<div id="dd-root">
+  <div class="dd-wrap">
+    <div class="dd-eyebrow">Decision Desk</div>
+    <h1>What are you trying to decide?</h1>
+    <p class="dd-sub">Give it the decision and any constraints that matter. It researches, cuts the noise, and hands back one recommendation — flagging anything it isn't sure about instead of guessing.</p>
+
+    <div class="dd-intake">
+      <label class="dd-label" for="dd-query">The decision</label>
+      <textarea id="dd-query" placeholder="e.g. Best noise-cancelling headphones for flights, or: which project management tool for a 6-person design team"></textarea>
+
+      <div class="dd-row">
+        <div>
+          <label class="dd-label" for="dd-budget">Budget / constraint (optional)</label>
+          <input type="text" id="dd-budget" placeholder="e.g. under $250" />
+        </div>
+        <div>
+          <label class="dd-label" for="dd-priority">Top priority (optional)</label>
+          <input type="text" id="dd-priority" placeholder="e.g. battery life over sound quality" />
+        </div>
+      </div>
+
+      <button class="dd-btn" id="dd-run">Cut through the noise</button>
+      <div class="dd-status" id="dd-status"></div>
+    </div>
+
+    <div id="dd-error-slot"></div>
+
+    <div id="dd-results">
+      <div class="dd-pick">
+        <div class="dd-pick-eyebrow">The pick</div>
+        <div class="dd-pick-name" id="dd-pick-name">—</div>
+        <p class="dd-pick-why" id="dd-pick-why">—</p>
+        <div class="dd-gauge-row">
+          <svg class="dd-gauge" id="dd-gauge" width="150" height="86" viewBox="0 0 150 86"></svg>
+          <div class="dd-gauge-caption">
+            <b id="dd-gauge-label">—</b><br/>
+            confidence based on how consistent and current the research is
+          </div>
+        </div>
+      </div>
+
+      <section class="dd-block">
+        <div class="dd-block-head">
+          <div class="dd-block-title">What actually matters</div>
+          <div class="dd-block-note">only the differentiators</div>
+        </div>
+        <div class="dd-table-wrap">
+          <table class="dd-compare" id="dd-table"></table>
+        </div>
+      </section>
+
+      <section class="dd-block" id="dd-ruled-section">
+        <div class="dd-block-head">
+          <div class="dd-block-title">Ruled out</div>
+        </div>
+        <div class="dd-ruled-list" id="dd-ruled-list"></div>
+      </section>
+
+      <section class="dd-block" id="dd-uncertain-section" style="display:none;">
+        <div class="dd-uncertain">
+          <div class="dd-block-head" style="margin-bottom:8px;">
+            <div class="dd-block-title">Uncertain — don't take my word for it</div>
+          </div>
+          <ul class="dd-uncertain-list" id="dd-uncertain-list"></ul>
+        </div>
+      </section>
+
+      <section class="dd-block" id="dd-sources-section">
+        <div class="dd-block-head">
+          <div class="dd-block-title">Sources</div>
+        </div>
+        <div class="dd-sources" id="dd-sources"></div>
+      </section>
+
+      <button class="dd-reset" id="dd-reset">Start a new decision</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const root = document.getElementById('dd-root');
+  const $ = (id) => root.querySelector('#' + id);
+
+  const queryEl = $('dd-query');
+  const budgetEl = $('dd-budget');
+  const priorityEl = $('dd-priority');
+  const runBtn = $('dd-run');
+  const statusEl = $('dd-status');
+  const errorSlot = $('dd-error-slot');
+  const resultsEl = $('dd-results');
+  const resetBtn = $('dd-reset');
+
+  const statusMessages = [
+    'Searching for options…',
+    'Reading through the details…',
+    'Working out what actually differs…',
+    'Ruling out the weak fits…',
+    'Weighing confidence…'
+  ];
+
+  function setStatus(msg, active){
+    statusEl.textContent = msg || '';
+    statusEl.classList.toggle('active', !!active);
+  }
+
+  function showError(msg){
+    errorSlot.innerHTML = '';
+    const div = document.createElement('div');
+    div.className = 'dd-error';
+    div.textContent = msg;
+    errorSlot.appendChild(div);
+  }
+  function clearError(){ errorSlot.innerHTML = ''; }
+
+  function drawGauge(confidence){
+    const svg = $('dd-gauge');
+    const c = Math.max(0, Math.min(100, confidence));
+    const cx = 75, cy = 78, r = 62;
+    const startAngle = Math.PI; // 180deg (left)
+    const endAngle = 0; // 0deg (right)
+    const angle = startAngle + (endAngle - startAngle) * (c / 100);
+
+    function pt(a, radius){
+      return [cx + radius * Math.cos(a), cy - radius * Math.sin(a)];
+    }
+    const [x1, y1] = pt(startAngle, r);
+    const [x2, y2] = pt(endAngle, r);
+    const [nx, ny] = pt(angle, r - 14);
+
+    let color = '#C8622E'; // low -> rust
+    if (c >= 70) color = '#2E7D4F';
+    else if (c >= 40) color = '#B8862E';
+
+    svg.innerHTML = `
+      <path d="M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}" fill="none" stroke="#DCD6C8" stroke-width="9" stroke-linecap="round"/>
+      <path d="M ${x1} ${y1} A ${r} ${r} 0 0 1 ${nx + (x2-x1)*0} ${ny}" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round"
+            stroke-dasharray="${Math.PI * r}" stroke-dashoffset="${Math.PI * r * (1 - c/100)}"/>
+      <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="${cx}" cy="${cy}" r="4.5" fill="${color}"/>
+      <text x="${cx}" y="${cy - 22}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="18" font-weight="600" fill="#1B1F23">${c}%</text>
+      <text x="${x1 - 2}" y="${y1 + 14}" font-family="IBM Plex Mono, monospace" font-size="9" fill="#6B655A">NOISE</text>
+      <text x="${x2 - 22}" y="${y2 + 14}" font-family="IBM Plex Mono, monospace" font-size="9" fill="#6B655A">SIGNAL</text>
+    `;
+  }
+
+  function findBalancedJson(t){
+    const start = t.indexOf('{');
+    if (start === -1) return null;
+    let depth = 0, inStr = false, esc = false, end = -1;
+    for (let i = start; i < t.length; i++){
+      const ch = t[i];
+      if (inStr){
+        if (esc) esc = false;
+        else if (ch === '\\') esc = true;
+        else if (ch === '"') inStr = false;
+        continue;
+      }
+      if (ch === '"'){ inStr = true; continue; }
+      if (ch === '{') depth++;
+      else if (ch === '}'){
+        depth--;
+        if (depth === 0){ end = i; break; }
+      }
+    }
+    if (end === -1) return null;
+    return t.slice(start, end + 1);
+  }
+
+  function repairJsonString(s){
+    return s
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/,\s*([}\]])/g, '$1'); // trailing commas
+  }
+
+  function extractJson(text){
+    let t = text.trim();
+    t = t.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '');
+    const candidate = findBalancedJson(t);
+    if (!candidate) throw new Error('no complete json object found in response');
+    try {
+      return JSON.parse(candidate);
+    } catch (e){
+      // attempt repair and retry once
+      const repaired = repairJsonString(candidate);
+      return JSON.parse(repaired);
+    }
+  }
+
+  function renderResults(data){
+    $('dd-pick-name').textContent = data.pick && data.pick.name ? data.pick.name : 'No clear winner';
+    $('dd-pick-why').textContent = data.pick && data.pick.why ? data.pick.why : '';
+    const confidence = data.pick && typeof data.pick.confidence === 'number' ? data.pick.confidence : 50;
+    drawGauge(confidence);
+    let gaugeLabel = 'Low confidence';
+    if (confidence >= 70) gaugeLabel = 'High confidence';
+    else if (confidence >= 40) gaugeLabel = 'Moderate confidence';
+    $('dd-gauge-label').textContent = gaugeLabel;
+
+    // comparison table
+    const table = $('dd-table');
+    table.innerHTML = '';
+    const criteria = (data.comparison && data.comparison.criteria) || [];
+    const options = (data.comparison && data.comparison.options) || [];
+    if (criteria.length && options.length){
+      const thead = document.createElement('thead');
+      const headRow = document.createElement('tr');
+      headRow.innerHTML = '<th>Option</th>' + criteria.map(c => `<th>${escapeHtml(c)}</th>`).join('');
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+      const tbody = document.createElement('tbody');
+      options.forEach(opt => {
+        const tr = document.createElement('tr');
+        if (opt.isPick) tr.className = 'dd-pick-row';
+        const cells = (opt.values || []).map(v => `<td>${escapeHtml(v)}</td>`).join('');
+        tr.innerHTML = `<td>${escapeHtml(opt.name || '')}</td>${cells}`;
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+    } else {
+      table.innerHTML = '<tbody><tr><td style="padding:14px;color:var(--ink-dim);">No comparison data returned.</td></tr></tbody>';
+    }
+
+    // ruled out
+    const ruledList = $('dd-ruled-list');
+    ruledList.innerHTML = '';
+    const ruledOut = data.ruled_out || [];
+    if (ruledOut.length){
+      ruledOut.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'dd-ruled-item';
+        div.innerHTML = `<span class="dd-ruled-name">${escapeHtml(r.name || '')}</span><span class="dd-ruled-reason">${escapeHtml(r.reason || '')}</span>`;
+        ruledList.appendChild(div);
+      });
+      $('dd-ruled-section').style.display = '';
+    } else {
+      $('dd-ruled-section').style.display = 'none';
+    }
+
+    // uncertain
+    const uncertainList = $('dd-uncertain-list');
+    uncertainList.innerHTML = '';
+    const uncertain = data.uncertain || [];
+    if (uncertain.length){
+      uncertain.forEach(u => {
+        const li = document.createElement('li');
+        li.textContent = u;
+        uncertainList.appendChild(li);
+      });
+      $('dd-uncertain-section').style.display = '';
+    } else {
+      $('dd-uncertain-section').style.display = 'none';
+    }
+
+    // sources
+    const sourcesEl = $('dd-sources');
+    sourcesEl.innerHTML = '';
+    const sources = data.sources || [];
+    if (sources.length){
+      sources.forEach(s => {
+        const a = document.createElement('a');
+        a.className = 'dd-source-chip';
+        a.href = s.url || '#';
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = s.title || s.url || 'source';
+        sourcesEl.appendChild(a);
+      });
+      $('dd-sources-section').style.display = '';
+    } else {
+      $('dd-sources-section').style.display = 'none';
+    }
+
+    resultsEl.classList.add('show');
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  async function runResearch(){
+    const query = queryEl.value.trim();
+    if (!query){
+      showError('Tell me what you\'re trying to decide first.');
+      return;
+    }
+    clearError();
+    resultsEl.classList.remove('show');
+    runBtn.disabled = true;
+
+    let msgIndex = 0;
+    setStatus(statusMessages[0], true);
+    const statusTimer = setInterval(() => {
+      msgIndex = (msgIndex + 1) % statusMessages.length;
+      setStatus(statusMessages[msgIndex], true);
+    }, 3200);
+
+    const constraints = [];
+    if (budgetEl.value.trim()) constraints.push(`Budget/constraint: ${budgetEl.value.trim()}`);
+    if (priorityEl.value.trim()) constraints.push(`Top priority: ${priorityEl.value.trim()}`);
+
+    const systemPrompt = `You are a decisive research analyst. The user wastes time over-researching decisions. Your job: research the options using web search, figure out what actually differentiates them, and land on ONE clear recommendation.
+
+Rules:
+- Search the web for current, real options and prices/specs where relevant. Don't rely on memory alone.
+- Compare only the 3-5 criteria that actually differ between options and matter to the decision. Drop anything that doesn't change the answer.
+- Pick 3-5 realistic top options to compare, plus note 1-3 you considered and ruled out with a one-line reason each.
+- Give exactly ONE final recommendation. Do not hedge with "it depends" as the final answer — make the call, but note real uncertainty separately.
+- Confidence score (0-100) reflects how consistent and current the evidence is, not how much you like the pick. If sources conflict, information is old, or availability/pricing is unclear, LOWER the confidence and say so in "uncertain" rather than guessing.
+- "uncertain" should list genuinely unresolved things (e.g. conflicting reviews, region-specific availability, prices that change often, missing recent data) — not generic disclaimers.
+- Be concise. Table cell values should be short phrases, not sentences.
+
+After finishing all research, respond with ONLY a single JSON object, no markdown fences, no commentary before or after, matching exactly this schema:
+{
+  "pick": { "name": string, "why": string (1-2 sentences), "confidence": number (0-100) },
+  "comparison": {
+    "criteria": [string, ... up to 5],
+    "options": [ { "name": string, "values": [string, ... same length as criteria], "isPick": boolean } ... 3 to 5 options ]
+  },
+  "ruled_out": [ { "name": string, "reason": string (short) } ... 0 to 3 items ],
+  "uncertain": [ string ... 0 to 4 items ],
+  "sources": [ { "title": string, "url": string } ... up to 6 items ]
+}`;
+
+    const userPrompt = `Decision: ${query}${constraints.length ? '\n' + constraints.join('\n') : ''}`;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 8000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }],
+          tools: [{ type: 'web_search_20250305', name: 'web_search' }]
+        })
+      });
+
+      if (!response.ok){
+        throw new Error('Request failed (' + response.status + ')');
+      }
+      const data = await response.json();
+
+      const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
+      if (!textBlocks.length){
+        throw new Error('No response text returned.');
+      }
+
+      let parsed = null;
+      let lastErr = null;
+      // Try the last block first, then earlier blocks, then everything concatenated.
+      const candidates = [textBlocks[textBlocks.length - 1], ...textBlocks.slice(0, -1).reverse(), textBlocks.join('\n')];
+      for (const candidate of candidates){
+        try {
+          parsed = extractJson(candidate);
+          break;
+        } catch (e){
+          lastErr = e;
+        }
+      }
+      if (!parsed){
+        if (data.stop_reason === 'max_tokens'){
+          throw new Error('The response got cut off before finishing. Try a more specific decision (fewer options to compare) and run it again.');
+        }
+        throw lastErr || new Error('Could not find valid JSON in the response.');
+      }
+      renderResults(parsed);
+      setStatus('Done.', false);
+    } catch (err){
+      console.error(err);
+      showError('Couldn\'t complete the research: ' + (err && err.message ? err.message : 'unknown error') + '. Try again, or narrow the decision a bit.');
+      setStatus('', false);
+    } finally {
+      clearInterval(statusTimer);
+      runBtn.disabled = false;
+    }
+  }
+
+  runBtn.addEventListener('click', runResearch);
+  queryEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) runResearch();
+  });
+  resetBtn.addEventListener('click', () => {
+    queryEl.value = '';
+    budgetEl.value = '';
+    priorityEl.value = '';
+    resultsEl.classList.remove('show');
+    clearError();
+    setStatus('', false);
+    queryEl.focus();
+  });
+})();
+</script>
